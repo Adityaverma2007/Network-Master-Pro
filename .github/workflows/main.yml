@@ -17,12 +17,13 @@ jobs:
           sudo apt update
           sudo apt install -y git zip unzip autoconf autotools-dev libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev openjdk-17-jdk
           pip install --upgrade pip
-          pip install buildozer kivy==2.3.0 cython pillow
+          pip install buildozer kivy==2.3.0 cython pillow kivymd
 
-      - name: Build with Buildozer
+      - name: Clean and Build
         run: |
-          # SDK लाइसेंस को फोर्सफुली स्वीकार करना
-          mkdir -p ~/.android && touch ~/.android/repositories.cfg
+          # पुरानी टूटी हुई फाइल्स को साफ़ करना
+          rm -rf .buildozer/
+          # बिल्ड शुरू करना
           buildozer android debug
         env:
           APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
@@ -31,5 +32,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: package
+          name: NetworkMasterPro-APK
           path: bin/*.apk
