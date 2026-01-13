@@ -7,26 +7,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install System Dependencies
+      - name: Build with Buildozer Docker
+        # हम docker का उपयोग करेंगे ताकि OS वर्जन का कोई चक्कर न रहे
         run: |
-          sudo apt update
-          sudo apt install -y git zip unzip autoconf autotools-dev libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev openjdk-17-jdk
-          pip install --upgrade pip
-          pip install buildozer kivy==2.3.0 cython pillow kivymd
-
-      - name: Build with Buildozer
-        run: |
-          # पिछली सेटिंग्स और गलत NDK लिंक्स को पूरी तरह डिलीट करें
-          rm -rf .buildozer/
-          # Buildozer को मजबूर करें कि वह अपना खुद का NDK डाउनलोड करे
-          buildozer android debug
+          docker run --rm \
+            -v "$(pwd)":/home/user/hostpython \
+            -v "$HOME/.buildozer":/home/user/.buildozer \
+            kivy/buildozer:latest \
+            android debug
         env:
           APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
-          # GitHub के पहले से मौजूद NDK को इग्नोर करने के लिए इन रास्तों को खाली करें
-          ANDROID_NDK_HOME: ""
-          ANDROID_NDK_ROOT: ""
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NetworkMasterPro-APK
+          path: bin/*.apk
