@@ -9,14 +9,15 @@ jobs:
 
       - name: Build with Buildozer Docker
         run: |
-          # हम 'warn_on_root=0' सेट करेंगे ताकि Docker में Root एरर न आए
+          # buildozer.spec में warn_on_root को बंद करना
           sed -i 's/warn_on_root = 1/warn_on_root = 0/' buildozer.spec
           
+          # Docker को कमांड देना कि वह बिना सवाल पूछे (yes |) काम शुरू करे
           docker run --rm \
             -v "$(pwd)":/home/user/hostpython \
             -v "$HOME/.buildozer":/home/user/.buildozer \
             kivy/buildozer:latest \
-            buildozer --allow-root android debug
+            bash -c "yes | buildozer android debug"
         env:
           APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
 
