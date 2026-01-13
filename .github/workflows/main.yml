@@ -12,7 +12,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install System Dependencies
         run: |
           sudo apt update
           sudo apt install -y git zip unzip autoconf autotools-dev libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev openjdk-17-jdk
@@ -21,9 +21,12 @@ jobs:
 
       - name: Build with Buildozer
         run: |
-          # पुरानी फाइल्स साफ़ करें और नया बिल्ड शुरू करें
+          # पिछली सेटिंग्स और गलत NDK लिंक्स को पूरी तरह डिलीट करें
           rm -rf .buildozer/
+          # Buildozer को मजबूर करें कि वह अपना खुद का NDK डाउनलोड करे
           buildozer android debug
         env:
           APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
-          ANDROID_NDK_HOME: "/usr/local/lib/android/sdk/ndk/25.2.9519653"
+          # GitHub के पहले से मौजूद NDK को इग्नोर करने के लिए इन रास्तों को खाली करें
+          ANDROID_NDK_HOME: ""
+          ANDROID_NDK_ROOT: ""
