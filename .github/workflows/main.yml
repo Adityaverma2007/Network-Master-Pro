@@ -1,21 +1,25 @@
-[app]
-title = Network Master Pro
-package.name = networkmasterpro
-package.domain = org.aditya
-source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,json
-version = 1.0
-requirements = python3,kivy==2.3.0,kivymd,certifi,pillow,idna
-orientation = portrait
-fullscreen = 0
-android.permissions = INTERNET, ACCESS_NETWORK_STATE, ACCESS_WIFI_STATE
-android.api = 34
-android.minapi = 21
-android.ndk = 25b
-android.accept_sdk_license = True
-android.archs = arm64-v8a, armeabi-v7a
-android.copy_libs = 1
+name: Build Android APK
+on: [push]
 
-[buildozer]
-log_level = 2
-warn_on_root = 0
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build with Buildozer Docker
+        run: |
+          # Docker इमेज चलाएं और बिना किसी सवाल के बिल्ड शुरू करें
+          docker run --rm \
+            -v "$(pwd)":/home/user/hostpython \
+            -v "$HOME/.buildozer":/home/user/.buildozer \
+            kivy/buildozer:latest \
+            /bin/bash -c "yes | buildozer android debug"
+        env:
+          APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NetworkMasterPro-APK
+          path: bin/*.apk
