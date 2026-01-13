@@ -9,13 +9,14 @@ jobs:
 
       - name: Build with Buildozer Docker
         run: |
-          # 'yes' कमांड अपने आप सारे सवालों का जवाब 'y' दे देगा
-          # इससे EOFError (बटन दबाने का इंतज़ार) खत्म हो जाएगा
+          # हम 'warn_on_root=0' सेट करेंगे ताकि Docker में Root एरर न आए
+          sed -i 's/warn_on_root = 1/warn_on_root = 0/' buildozer.spec
+          
           docker run --rm \
             -v "$(pwd)":/home/user/hostpython \
             -v "$HOME/.buildozer":/home/user/.buildozer \
             kivy/buildozer:latest \
-            /bin/bash -c "yes | buildozer android debug"
+            buildozer --allow-root android debug
         env:
           APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
 
