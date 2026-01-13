@@ -1,4 +1,5 @@
 [app]
+
 # (str) Title of your application
 title = Network Master Pro
 
@@ -6,45 +7,56 @@ title = Network Master Pro
 package.name = networkmasterpro
 
 # (str) Package domain (needed for android packaging)
-package.domain = com.network.master
+package.domain = org.aditya
 
-# (str) Source code where the main.py is located
+# (str) Source code where the main.py live
 source.dir = .
 
 # (list) Source files to include (let empty to include all the files)
-source.include_exts = py,png,jpg,kv,atlas
+source.include_exts = py,png,jpg,kv,atlas,json
 
 # (str) Application versioning
-version = 1.0.1
+version = 0.1
 
 # (list) Application requirements
-# comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy==2.3.0,kivymd,certifi
+# हमने इसमें kivymd और certifi जोड़ दिया है ताकि पिंग एनालिसिस सही से चले
+requirements = python3,kivy==2.3.0,kivymd,certifi,pillow,idna
 
 # (str) Supported orientations
 orientation = portrait
 
-# (bool) Indicate if the application should be fullscreen or not
+# (bool) Indicate if the application should be fullscreen
 fullscreen = 0
 
 # (list) Permissions
-android.permissions = INTERNET, ACCESS_NETWORK_STATE
+# नेटवर्क और पिंग के लिए ये परमिशन बहुत ज़रूरी हैं
+android.permissions = INTERNET, ACCESS_NETWORK_STATE, ACCESS_WIFI_STATE
 
-# (int) Target Android API, should be as high as possible.
-# Play Store requires 33 or 34 for new apps [cite: 2026-01-06]
+# (int) Android API to use (34 is latest for Play Store)
 android.api = 34
 
-# (int) Minimum API your APK will support.
+# (int) Minimum API your APK will support
 android.minapi = 21
 
 # (str) Android NDK version to use
+# GitHub के साथ टकराव रोकने के लिए हमने इसे फिक्स कर दिया है
 android.ndk = 25b
 
-# (bool) Use --private data storage (True) or --dir public storage (False)
-android.private_storage = True
+# (bool) Use the shared SDK/NDK
+android.accept_sdk_license = True
 
-# (list) List of service to declare
-services = 
+# (str) Android architecture to build for
+android.archs = arm64-v8a, armeabi-v7a
+
+# (bool) skip update of the android toolchain
+android.skip_update = False
+
+# (bool) Copy library instead of making a lib dir
+android.copy_libs = 1
+
+# (list) The Android architectures for which to build
+# Play Store के लिए arm64-v8a ज़रूरी है
+android.archs = arm64-v8a, armeabi-v7a
 
 [buildozer]
 # (int) Log level (0 = error only, 1 = info, 2 = debug (with command output))
