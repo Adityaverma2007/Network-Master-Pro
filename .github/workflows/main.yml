@@ -19,11 +19,13 @@ jobs:
           pip install --upgrade pip
           pip install buildozer kivy==2.3.0 cython pillow kivymd
 
-      - name: Clean and Build
+      - name: Force NDK and Build
         run: |
-          # पुरानी टूटी हुई फाइल्स को साफ़ करना
+          # पुरानी फाइल्स साफ़ करें
           rm -rf .buildozer/
-          # बिल्ड शुरू करना
+          # Buildozer को मजबूर करें कि वह NDK 25b ही इस्तेमाल करे
+          sed -i 's/# android.ndk = 25b/android.ndk = 25b/' buildozer.spec
+          # बिल्ड शुरू करें
           buildozer android debug
         env:
           APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
