@@ -8,13 +8,14 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build with Buildozer Docker
-        # हम docker का उपयोग करेंगे ताकि OS वर्जन का कोई चक्कर न रहे
         run: |
+          # 'yes' कमांड अपने आप सारे सवालों का जवाब 'y' दे देगा
+          # इससे EOFError (बटन दबाने का इंतज़ार) खत्म हो जाएगा
           docker run --rm \
             -v "$(pwd)":/home/user/hostpython \
             -v "$HOME/.buildozer":/home/user/.buildozer \
             kivy/buildozer:latest \
-            android debug
+            /bin/bash -c "yes | buildozer android debug"
         env:
           APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
 
