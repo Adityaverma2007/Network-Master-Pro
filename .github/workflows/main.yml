@@ -9,12 +9,12 @@ jobs:
 
       - name: Build with Buildozer Docker
         run: |
-          # Buildozer को बताएं कि कोई सवाल न पूछे और सीधे काम शुरू करे
+          # Buildozer को सीधे 'allow-root' कमांड देना ताकि वह सवाल ही न पूछे
           docker run --rm \
             -v "$(pwd)":/home/user/hostpython \
             -v "$HOME/.buildozer":/home/user/.buildozer \
             kivy/buildozer:latest \
-            /bin/bash -c "yes | buildozer --allow-root android debug"
+            buildozer --allow-root android debug
         env:
           APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
 
