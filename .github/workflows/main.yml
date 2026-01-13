@@ -1,0 +1,14 @@
+name: Build Android APK
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build with Buildozer
+        uses: ArtemGrinev/buildozer-action@v1
+        with:
+          buildozer_version: stable
+          python_version: 3.12
