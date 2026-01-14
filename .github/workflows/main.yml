@@ -3,7 +3,7 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # रिसर्च: 24.04 की जगह 22.04 का उपयोग करें, यह ज़्यादा स्टेबल है
     steps:
       - uses: actions/checkout@v4
 
@@ -19,25 +19,27 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.10' # 3.11 की जगह 3.10 ज़्यादा स्टेबल है Android बिल्ड के लिए
 
-      - name: Install Buildozer & Dependencies
+      - name: Install Buildozer & Cython
         run: |
           pip install --upgrade pip
-          # Cython 0.29.33 ही 'Broken Pipe' का असली इलाज है
-          pip install "buildozer>=1.5.0" "cython<3.0.0" kivy kivymd
+          pip install "buildozer==1.5.0" "cython<3.0.0" kivy kivymd
 
       - name: Build Android APK
         run: |
-          # गहरी रिसर्च: GitHub पर मौजूद सबसे स्टेबल NDK पाथ को सेट करना
+          # सटीक NDK पाथ फिक्स (Ubuntu 22.04 के लिए)
           export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.2.9519653
           export APP_ANDROID_ACCEPT_SDK_LICENSE=1
           
-          # बिल्ड को क्लीन तरीके से चलाना
+          # बिल्ड शुरू करने से पहले पुराना कचरा साफ करें
+          buildozer android clean
+          
+          # बिना 'yes' पाइप के सीधा कमांड (ताकि Pipe न टूटे)
           buildozer --allow-root android debug
         env:
-          # RAM को बढ़ाना और Daemon ऑफ करना ताकि Memory Error न आए
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs='-Xmx4096m'"
+          # रैम को 4GB से बढ़ाकर 6GB करें (GitHub 7GB तक देता है)
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs='-Xmx6144m'"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
