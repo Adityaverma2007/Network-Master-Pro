@@ -10,142 +10,138 @@ import subprocess
 import os
 from datetime import datetime
 
+# --- 3D Design Input Field ---
+class CustomInput(TextInput):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.background_normal = ""
+        self.background_color = (0.15, 0.15, 0.15, 1) 
+        self.foreground_color = (1, 1, 1, 1)
+        self.padding = [10, 10]
+        self.font_size = '16sp'
+        self.cursor_color = (0, 1, 0, 1)
+
 class NetworkMasterPro(App):
     def build(self):
-        self.title = "Network Master Pro - Professional Mode"
-        self.root = BoxLayout(orientation='vertical', padding=10, spacing=5) # Spacing kam ki hai
+        self.title = "Network Master Pro"
+        self.main_layout = BoxLayout(orientation='vertical', padding=10, spacing=2)
         
-        # --- Top Section: Service Details (Scrollable to save space) ---
-        input_scroll = ScrollView(size_hint=(1, 0.45)) # Input area ko thoda chhota kiya taaki gap kam ho
-        details_layout = BoxLayout(orientation='vertical', size_hint_y=None, spacing=5)
-        details_layout.bind(minimum_height=details_layout.setter('height'))
+        # 1. DETAILS BOX (Top Section)
+        self.scroll_input = ScrollView(size_hint=(1, 0.45))
+        input_container = BoxLayout(orientation='vertical', size_hint_y=None, spacing=5)
+        input_container.bind(minimum_height=input_container.setter('height'))
 
-        # Two Column Grid for Provider & Client
-        grid = GridLayout(cols=2, spacing=10, size_hint_y=None, height=400)
+        details_grid = GridLayout(cols=2, spacing=10, size_hint_y=None, height=450)
         
-        # Left: Provider
-        p_box = BoxLayout(orientation='vertical', spacing=2)
-        p_box.add_widget(Label(text="[b]PROVIDER[/b]", markup=True, size_hint_y=None, height=30))
-        self.sp_name = TextInput(hint_text="Company Name", multiline=False)
-        self.sp_addr = TextInput(hint_text="Address", multiline=False)
-        self.eng_name = TextInput(hint_text="Engineer Name", multiline=False)
-        self.eng_mob = TextInput(hint_text="Mobile: 9416399442", multiline=False) # Contextual Number
-        p_box.add_widget(self.sp_name); p_box.add_widget(self.sp_addr)
-        p_box.add_widget(self.eng_name); p_box.add_widget(self.eng_mob)
-
-        # Right: Client
-        c_box = BoxLayout(orientation='vertical', spacing=2)
-        c_box.add_widget(Label(text="[b]CLIENT[/b]", markup=True, size_hint_y=None, height=30))
-        self.sc_name = TextInput(hint_text="Client Company", multiline=False)
-        self.sc_addr = TextInput(hint_text="Client Address", multiline=False)
-        self.rp_name = TextInput(hint_text="Responsible Person", multiline=False)
-        self.rp_mob = TextInput(hint_text="Client Mobile", multiline=False)
-        c_box.add_widget(self.sc_name); c_box.add_widget(self.sc_addr)
-        c_box.add_widget(self.rp_name); c_box.add_widget(self.rp_mob)
-
-        grid.add_widget(p_box); grid.add_widget(c_box)
-        details_layout.add_widget(grid)
-
-        # IP Config Section
-        ip_grid = GridLayout(cols=2, spacing=10, size_hint_y=None, height=120)
-        self.start_ip = TextInput(hint_text="Start IP (e.g. 192.168.1.1)", multiline=False)
-        self.end_ip = TextInput(hint_text="End IP (e.g. 192.168.1.10)", multiline=False)
-        self.packet_size = TextInput(hint_text="Packet Size (Bytes)", text="32", multiline=False)
-        self.report_date = TextInput(text=datetime.now().strftime("%Y-%m-%d %H:%M"), multiline=False)
-        ip_grid.add_widget(self.start_ip); ip_grid.add_widget(self.end_ip)
-        ip_grid.add_widget(self.packet_size); ip_grid.add_widget(self.report_date)
+        # Consistent Design for 8 boxes
+        self.sp_name = CustomInput(hint_text="Service Provider Co.")
+        self.sp_addr = CustomInput(hint_text="Provider Address")
+        self.eng_name = CustomInput(hint_text="Engineer Name")
+        self.eng_mob = CustomInput(hint_text="Engineer Mobile (9416399442)") [cite: 2026-01-04]
         
-        details_layout.add_widget(ip_grid)
-        input_scroll.add_widget(details_layout)
+        self.sc_name = CustomInput(hint_text="Client Company")
+        self.sc_addr = CustomInput(hint_text="Client Address")
+        self.rp_name = CustomInput(hint_text="Responsible Person")
+        self.rp_mob = CustomInput(hint_text="Client Mobile")
 
-        # --- Middle Section: Buttons (Gap kam karne ke liye position change) ---
-        btn_layout = BoxLayout(size_hint_y=None, height=60, spacing=10)
-        self.run_btn = Button(text="START SCAN", background_color=(0, 0.6, 0, 1), bold=True)
+        for widget in [self.sp_name, self.sc_name, self.sp_addr, self.sc_addr, 
+                       self.eng_name, self.rp_name, self.eng_mob, self.rp_mob]:
+            details_grid.add_widget(widget)
+
+        # 2. CONFIG BOX (IPs, Packet & NEW PING COUNT)
+        config_grid = GridLayout(cols=2, spacing=10, size_hint_y=None, height=180)
+        self.start_ip = CustomInput(hint_text="Start IP (192.168.1.1)")
+        self.end_ip = CustomInput(hint_text="End IP (192.168.1.10)")
+        self.packet_size = CustomInput(hint_text="Packet Size", text="32")
+        # Naya Ping Count Box (Max 5)
+        self.ping_count = CustomInput(hint_text="Ping Times (Max 5)", text="3") 
+        self.date_box = CustomInput(text=datetime.now().strftime("%Y-%m-%d"))
+        self.dummy_label = Label(text="", size_hint_y=None, height=40) # Spacing ke liye
+
+        config_grid.add_widget(self.start_ip); config_grid.add_widget(self.end_ip)
+        config_grid.add_widget(self.packet_size); config_grid.add_widget(self.ping_count)
+        config_grid.add_widget(self.date_box); config_grid.add_widget(self.dummy_label)
+
+        input_container.add_widget(details_grid)
+        input_container.add_widget(config_grid)
+        self.scroll_input.add_widget(input_container)
+
+        # 3. BUTTONS (Attached to inputs)
+        btn_layout = BoxLayout(size_hint_y=None, height=70, spacing=5)
+        self.run_btn = Button(text="START SCAN", background_color=(0, 0.8, 0, 1), bold=True)
         self.run_btn.bind(on_press=self.start_analysis)
-        self.save_btn = Button(text="SAVE REPORT", background_color=(0.1, 0.1, 0.6, 1), bold=True)
+        self.save_btn = Button(text="SAVE REPORT", background_color=(0, 0.4, 0.9, 1), bold=True)
         self.save_btn.bind(on_press=self.download_report)
         btn_layout.add_widget(self.run_btn); btn_layout.add_widget(self.save_btn)
 
-        # --- Bottom Section: Live Results (Khali jagah bharne ke liye) ---
+        # 4. LIVE PING MONITOR
         self.res_scroll = ScrollView(size_hint=(1, 0.45))
-        self.result_label = Label(text="[color=888888]System Ready for Analysis...[/color]", 
+        self.result_label = Label(text="[color=00ff00]> System Ready...[/color]", 
                                  markup=True, size_hint_y=None, halign='left', valign='top')
         self.result_label.bind(size=self.result_label.setter('text_size'))
         self.res_scroll.add_widget(self.result_label)
 
-        self.root.add_widget(input_scroll)
-        self.root.add_widget(btn_layout)
-        self.root.add_widget(self.res_scroll)
+        self.main_layout.add_widget(self.scroll_input)
+        self.main_layout.add_widget(btn_layout)
+        self.main_layout.add_widget(self.res_scroll)
         
-        self.current_report_text = ""
-        return self.root
+        self.full_log = ""
+        return self.main_layout
 
     def start_analysis(self, instance):
-        self.result_label.text = "[b]Initializing Master Scan...[/b]\n"
-        self.current_report_text = ""
-        Clock.schedule_once(self.run_scan_logic, 0.5)
+        self.result_label.text = "[b]SCANNING...[/b]\n"
+        self.full_log = ""
+        Clock.schedule_once(self.execute_pings, 0.1)
 
-    def run_scan_logic(self, dt):
+    def execute_pings(self, dt):
         try:
-            start = self.start_ip.text.strip()
-            end = self.end_ip.text.strip()
-            p_size = self.packet_size.text.strip() or "32"
+            base_ip = ".".join(self.start_ip.text.split('.')[:-1])
+            start = int(self.start_ip.text.split('.')[-1])
+            end = int(self.end_ip.text.split('.')[-1])
+            p_size = self.packet_size.text or "32"
             
-            # Simple Range Logic
-            base = ".".join(start.split('.')[:-1])
-            s_num = int(start.split('.')[-1])
-            e_num = int(end.split('.')[-1])
+            # Logic: Input check for Max 5
+            try:
+                p_count = int(self.ping_count.text)
+                if p_count > 5: p_count = 5
+                if p_count < 1: p_count = 1
+            except:
+                p_count = 3 # Default agar user galti kare
 
-            self.current_report_text = f"--- SERVICE REPORT: {self.report_date.text} ---\n\n"
-            
-            for i in range(s_num, e_num + 1):
-                ip = f"{base}.{i}"
-                # Live Update Animation taaki user ko pata chale kaam ho raha hai
-                self.result_label.text += f"Checking {ip}... "
+            for i in range(start, end + 1):
+                ip = f"{base_ip}.{i}"
+                self.result_label.text += f"[color=ffffff]Ping {ip} ({p_count} times)...[/color]"
                 
-                cmd = ['/system/bin/ping', '-c', '2', '-s', p_size, '-W', '1', ip]
+                cmd = ['/system/bin/ping', '-c', str(p_count), '-s', p_size, '-W', '1', ip]
                 try:
                     output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, universal_newlines=True)
-                    # Extract Latency (ms)
-                    ms = output.split('/')[-3] if '/' in output else "N/A"
-                    res = f"[color=00ff00]OK ({ms}ms)[/color]\n"
+                    res = f" [color=00ff00]OK[/color]\n"
                 except:
-                    res = "[color=ff0000]FAILED[/color]\n"
+                    res = f" [color=ff0000]FAILED[/color]\n"
                 
                 self.result_label.text += res
-                self.current_report_text += f"IP: {ip} | Status: {res.strip()}\n"
+                self.full_log += f"IP: {ip} | Pings: {p_count} | Status: {res.strip()}\n"
                 self.result_label.height = self.result_label.texture_size[1]
-                self.res_scroll.scroll_y = 0 # Auto-scroll to bottom
-            
-            self.result_label.text += "\n[b][color=00ff00]SCAN COMPLETED SUCCESSFULLY![/color][/b]"
+                self.res_scroll.scroll_y = 0
+
+            self.result_label.text += "\n[b][color=ffff00]--- SCAN COMPLETED ---[/color][/b]"
         except Exception as e:
-            self.result_label.text = f"[color=ff0000]Error: {str(e)}[/color]"
+            self.result_label.text += f"\nError: {e}"
 
     def download_report(self, instance):
-        if not self.current_report_text:
-            self.result_label.text += "\n[color=ff0000]Run Scan first![/color]"
-            return
-
-        # Android path fix
-        folder = "/sdcard/Documents/NetworkMasterReports"
-        if not os.path.exists(folder):
-            os.makedirs(folder)
+        report_content = f"NETWORK SERVICE REPORT - {self.date_box.text}\n" + "="*40 + "\n"
+        report_content += f"PROVIDER: {self.sp_name.text} | ENGINEER: {self.eng_name.text}\n"
+        report_content += f"CLIENT: {self.sc_name.text} | PERSON: {self.rp_name.text}\n" + "-"*40 + "\n"
+        report_content += self.full_log
         
-        filename = f"Report_{datetime.now().strftime('%H%M%S')}.txt"
-        full_path = os.path.join(folder, filename)
-        
-        with open(full_path, "w") as f:
-            f.write(self.current_report_text)
-            
-        self.result_label.text += f"\n\n[b]SAVED:[/b] [ref={full_path}][color=00aaff]{full_path}[/color][/ref]"
-        self.result_label.bind(on_ref_press=self.open_file)
-
-    def open_file(self, instance, value):
-        # File par click karne par open karne ki koshish (Android Intent)
+        path = "/sdcard/Documents/NetworkMasterPro_Report.txt"
         try:
-            os.system(f"am start -a android.intent.action.VIEW -d file://{value} -t text/plain")
+            if not os.path.exists("/sdcard/Documents"): os.makedirs("/sdcard/Documents")
+            with open(path, "w") as f:
+                f.write(report_content)
+            self.result_label.text += f"\n\n[u]SAVED TO: {path}[/u]"
         except:
-            self.result_label.text += "\nCould not open directly. Check Documents folder."
+            self.result_label.text += "\n\n[color=ff0000]Error: Permission Denied![/color]"
 
 if __name__ == '__main__':
     NetworkMasterPro().run()
