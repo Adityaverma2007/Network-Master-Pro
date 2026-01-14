@@ -4,77 +4,102 @@ from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
-from kivy.clock import Clock # Android पर स्मूथ अपडेट के लिए
+from kivy.clock import Clock
 import platform
 import subprocess
+import os
 
 class NetworkMasterPro(App):
     def build(self):
-        # 'self.title' सेट करना ज़रूरी है ताकि ऊपर नाम दिखे
         self.title = "Network Master Pro"
+        self.layout = BoxLayout(orientation='vertical', padding=15, spacing=10)
         
-        self.layout = BoxLayout(orientation='vertical', padding=20, spacing=15)
+        # --- UI Header ---
+        self.layout.add_widget(Label(text="[b]IP RANGE ANALYZER[/b]", markup=True, size_hint_y=None, height=40))
+
+        # --- Inputs Section ---
+        self.start_ip = TextInput(hint_text="Start IP (e.g. 192.168.1.1)", multiline=False, size_hint_y=None, height=80)
+        self.end_ip = TextInput(hint_text="End IP (e.g. 192.168.1.10)", multiline=False, size_hint_y=None, height=80)
+        self.packet_size = TextInput(hint_text="Packet Size (Bytes) - Default 32", multiline=False, size_hint_y=None, height=80)
         
-        # UI Elements
-        self.label = Label(text="Network Master Pro\nProfessional Ping Analysis", 
-                           size_hint_y=None, height=100, halign='center')
+        self.layout.add_widget(self.start_ip)
+        self.layout.add_widget(self.end_ip)
+        self.layout.add_widget(self.packet_size)
+
+        # --- Buttons ---
+        btn_layout = BoxLayout(size_hint_y=None, height=80, spacing=10)
+        self.run_btn = Button(text="START SCAN", background_color=(0, 0.7, 0, 1))
+        self.run_btn.bind(on_press=self.start_analysis)
         
-        self.ip_input = TextInput(hint_text="Enter IP addresses (e.g. 8.8.8.8, 1.1.1.1)", 
-                                  multiline=False, size_hint_y=None, height=100)
+        self.download_btn = Button(text="DOWNLOAD REPORT", background_color=(0.2, 0.2, 0.8, 1))
+        self.download_btn.bind(on_press=self.download_report)
         
-        self.run_btn = Button(text="Start Master Analysis", size_hint_y=None, height=100, 
-                              background_color=(0, 0.6, 0.2, 1), font_size='20sp')
-        self.run_btn.bind(on_press=self.run_analysis)
-        
-        self.result_view = ScrollView(size_hint=(1, 1))
-        self.result_label = Label(text="Results will appear here...", size_hint_y=None, 
-                                 halign='left', valign='top', markup=True)
+        btn_layout.add_widget(self.run_btn)
+        btn_layout.add_widget(self.download_btn)
+        self.layout.add_widget(btn_layout)
+
+        # --- Results View ---
+        self.result_view = ScrollView()
+        self.result_label = Label(text="Ready to Scan...", size_hint_y=None, halign='left', valign='top', markup=True)
         self.result_label.bind(size=self.result_label.setter('text_size'))
         self.result_view.add_widget(self.result_label)
-        
-        self.layout.add_widget(self.label)
-        self.layout.add_widget(self.ip_input)
-        self.layout.add_widget(self.run_btn)
         self.layout.add_widget(self.result_view)
         
+        self.final_report = "" # रिपोर्ट स्टोर करने के लिए
         return self.layout
 
-    def run_analysis(self, instance):
-        self.result_label.text = "Analyzing... Please wait..."
-        # छोटी सी देरी ताकि UI अपडेट हो सके
-        Clock.schedule_once(self.perform_ping, 0.1)
+    def start_analysis(self, instance):
+        self.result_label.text = "Initializing Range Scan..."
+        Clock.schedule_once(self.run_range_ping, 0.1)
 
-    def perform_ping(self, dt):
-        ips = [ip.strip() for ip in self.ip_input.text.split(',')]
-        report = "[b]--- MASTER REPORT ---[/b]\n"
-        report += f"Contact: 9416399442\n"
-        report += f"Model Arch: {platform.machine()}\n\n"
-        
-        for ip in ips:
-            if not ip: continue
-            report += f"Analyzing IP: {ip}\n"
-            report += "-" * 20 + "\n"
+    def run_range_ping(self, dt):
+        try:
+            start_parts = list(map(int, self.start_ip.text.split('.')))
+            end_parts = list(map(int, self.end_ip.text.split('.')))
+            p_size = self.packet_size.text if self.packet_size.text else "32"
             
-            # Android पर पिंग करने का सही तरीका
-            try:
-                # Android में पिंग का पाथ अक्सर /system/bin/ping होता है
-                cmd = ['/system/bin/ping', '-c', '3', ip]
-                output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, universal_newlines=True)
+            base_ip = ".".join(map(str, start_parts[:3]))
+            report = f"[b]MASTER REPORT (Contact: 9416399442)[/b]\n"
+            report += f"Packet Size: {p_size} Bytes\n"
+            report += "="*30 + "\n"
+
+            for i in range(start_parts[3], end_parts[3] + 1):
+                current_ip = f"{base_ip}.{i}"
+                report += f"Analyzing: {current_ip}...\n"
                 
-                if "3 packets transmitted, 3 received" in output or "0% packet loss" in output:
-                    status = "[color=00ff00]STATUS: OK[/color]"
-                else:
-                    status = "[color=ff0000]STATUS: NOT OK[/color]"
-                
-                report += f"{output}\n{status}\n"
-            except Exception as e:
-                report += f"Final Summary: [color=ff0000]STATUS: NOT OK[/color]\n(Unreachable or System Blocked)\n"
+                # Android-Specific Ping Command
+                cmd = ['/system/bin/ping', '-c', '2', '-s', p_size, current_ip]
+                try:
+                    output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, universal_newlines=True)
+                    if "0% packet loss" in output:
+                        report += f"[color=00ff00]STATUS: OK[/color]\n"
+                    else:
+                        report += f"[color=ffcc00]STATUS: PARTIAL LOSS[/color]\n"
+                except:
+                    report += f"[color=ff0000]STATUS: NOT OK[/color]\n"
+                report += "-"*20 + "\n"
+                self.result_label.text = report # Real-time update
             
-            report += "=" * 20 + "\n\n"
+            self.final_report = report
+            self.result_label.text = report + "\n[b]SCAN COMPLETE[/b]"
+            self.result_label.height = self.result_label.texture_size[1]
+        except Exception as e:
+            self.result_label.text = f"Error: Check IP Format\n{str(e)}"
+
+    def download_report(self, instance):
+        if not self.final_report:
+            self.result_label.text = "No report to download!"
+            return
         
-        self.result_label.text = report
-        # हाइट अपडेट करना ताकि स्क्रॉल काम करे
-        self.result_label.height = max(self.result_label.texture_size[1], self.result_view.height)
+        # Android Download Folder Path
+        path = "/sdcard/Download/NetworkMaster_Report.txt"
+        try:
+            with open(path, "w") as f:
+                f.write(self.final_report.replace('[color=00ff00]', '').replace('[/color]', ''))
+            self.result_label.text += f"\n\n[color=00ff00]REPORT SAVED TO: {path}[/color]"
+        except:
+            # Fallback if permission issues
+            self.result_label.text += "\n\n[color=ff0000]Permission Error: Enable Storage Access[/color]"
 
 if __name__ == '__main__':
-    NetworkMasterPro().run() # .finish() हटा दिया गया है
+    NetworkMasterPro().run()
