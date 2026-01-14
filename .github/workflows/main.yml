@@ -9,12 +9,12 @@ jobs:
 
       - name: Build with Buildozer Docker
         run: |
-          # 'sh -c' और 'yes |' का उपयोग करके 'y/n' वाले सवाल को खत्म किया गया
+          # Docker के अंदर bash चलाकर 'yes' पाइप का उपयोग करना ताकि EOFError न आए
           docker run --rm \
             -v "$(pwd)":/home/user/hostpython \
             -v "$HOME/.buildozer":/home/user/.buildozer \
             kivy/buildozer:latest \
-            sh -c "yes | buildozer --allow-root android debug"
+            /bin/bash -c "yes | buildozer --allow-root android debug"
         env:
           APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
 
