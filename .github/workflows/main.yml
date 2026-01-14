@@ -24,18 +24,23 @@ jobs:
       - name: Install Buildozer & Cython
         run: |
           pip install --upgrade pip
+          # Cython का यह वर्जन 'Broken Pipe' एरर को रोकता है
           pip install "buildozer==1.5.0" "cython<3.0.0" kivy
 
       - name: Build Android APK
         run: |
-          # 'yes' कमांड के साथ बिल्ड को और अधिक समय दें ताकि 'Broken Pipe' न आए
+          # NDK और SDK पाथ को मैन्युअली सेट करना
+          export ANDROID_NDK_HOME=$ANDROID_NDK_LATEST_HOME
           export APP_ANDROID_ACCEPT_SDK_LICENSE=1
-          yes | buildozer --allow-root android debug
+          # 'yes' कमांड के साथ बिल्ड को और अधिक समय दें
+          sh -c "yes | buildozer --allow-root android debug"
         env:
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+          # मेमोरी मैनेजमेंट के लिए
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs='-Xmx2048m'"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: NetworkMasterPro-APK
           path: bin/*.apk
+          
