@@ -7,6 +7,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 1. Java 17 को सेट करना (API 34 के लिए सबसे जरूरी)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 2. Python 3.10 सेट करना
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # 3. सिस्टम डिपेंडेंसीज (बिना किसी पुरानी लाइब्रेरी के)
       - name: Install System Dependencies
         run: |
           sudo apt-get update
@@ -16,27 +30,18 @@ jobs:
             zip unzip autoconf automake libtool pkg-config libncurses5-dev \
             libncursesw5-dev cmake libffi-dev libssl-dev ant
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install Buildozer & Dependencies
+      - name: Install Buildozer & Cython
         run: |
           pip install --upgrade pip
           pip install "buildozer==1.5.0" "cython<3.0.0" kivy kivymd
 
+      # 4. असली फिक्स: NDK का आटोमेटिक डाउनलोड
       - name: Build Android APK
         run: |
-          # रिसर्च के अनुसार: GitHub पर NDK का सही पाथ चेक करना
-          # अगर यह पाथ गलत है, तो बिल्ड 1 मिनट में क्रैश होता है
-          export ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
+          # हम कोई पाथ नहीं देंगे, बिल्डोजर को खुद डाउनलोड करने देंगे
+          # इससे पाथ न मिलने का 1-मिनट वाला एरर खत्म हो जाएगा
           export APP_ANDROID_ACCEPT_SDK_LICENSE=1
-          
-          # पुरानी टूटी हुई फाइलों को पूरी तरह साफ करना
           buildozer android clean
-          
-          # बिल्ड रन करना
           buildozer --allow-root android debug
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs='-Xmx4096m'"
