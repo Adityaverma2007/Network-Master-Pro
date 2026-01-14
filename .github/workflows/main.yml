@@ -9,14 +9,12 @@ jobs:
 
       - name: Build with Buildozer Docker
         run: |
-          # Docker के अंदर पर्यावरण चर (Environment Variable) पास करना
-          # यह Buildozer को सीधे 'Root' पर चलने की अनुमति देता है बिना सवाल पूछे
+          # 'sh -c' और 'yes |' का उपयोग करके 'y/n' वाले सवाल को खत्म किया गया
           docker run --rm \
             -v "$(pwd)":/home/user/hostpython \
             -v "$HOME/.buildozer":/home/user/.buildozer \
-            -e BUILDOZER_ALLOW_ROOT=1 \
             kivy/buildozer:latest \
-            buildozer android debug
+            sh -c "yes | buildozer --allow-root android debug"
         env:
           APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
 
