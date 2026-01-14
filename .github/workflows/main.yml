@@ -9,15 +9,12 @@ jobs:
 
       - name: Build with Buildozer Docker
         run: |
-          # buildozer.spec में warn_on_root को पहले ही बंद करें
-          sed -i 's/warn_on_root = 1/warn_on_root = 0/' buildozer.spec
-          
-          # सीधे 'buildozer --allow-root' का उपयोग करें जो सवाल नहीं पूछता
+          # 'sh -c' का उपयोग करके हम Docker को मजबूर करेंगे कि वह 'yes' कमांड को सुने
           docker run --rm \
             -v "$(pwd)":/home/user/hostpython \
             -v "$HOME/.buildozer":/home/user/.buildozer \
             kivy/buildozer:latest \
-            buildozer --allow-root android debug
+            sh -c "yes | buildozer --allow-root android debug"
         env:
           APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
 
