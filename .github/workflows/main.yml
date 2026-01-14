@@ -21,24 +21,23 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Buildozer & Cython
+      - name: Install Buildozer & Dependencies
         run: |
           pip install --upgrade pip
-          pip install "buildozer==1.5.0" "cython<3.0.0" kivy
+          # रिसर्च कहती है कि Cython 0.29.33 ही सबसे सुरक्षित है 'Broken Pipe' से बचने के लिए
+          pip install "buildozer>=1.5.0" "cython<3.0.0" kivy kivymd
 
       - name: Build Android APK
         run: |
-          # NDK का सही रास्ता और लाइसेंस स्वीकार करना
-          export ANDROID_NDK_HOME=$ANDROID_NDK_LATEST_HOME
+          # गहरी रिसर्च: GitHub के पास कई NDK वर्जन हैं। हम 25b का उपयोग करेंगे।
+          # यह कमांड सुनिश्चित करेगी कि पाथ में कोई गड़बड़ न हो
+          export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.2.9519653
           export APP_ANDROID_ACCEPT_SDK_LICENSE=1
           
-          # Broken Pipe से बचने के लिए 'yes' को सावधानी से चलाना
-          yes | buildozer --allow-root android debug || true
-          
-          # रुकी हुई बिल्ड को दोबारा शुरू करके पूरा करना
+          # बिल्ड को क्लीन तरीके से चलाना
           buildozer --allow-root android debug
         env:
-          # मेमोरी बढ़ाना ताकि 'exit code 1' न आए
+          # रैम बढ़ाना (4GB) और Gradle Daemon बंद करना अनिवार्य है
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs='-Xmx4096m'"
 
       - name: Upload APK
