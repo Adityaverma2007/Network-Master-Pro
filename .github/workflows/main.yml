@@ -24,20 +24,19 @@ jobs:
       - name: Install Buildozer & Dependencies
         run: |
           pip install --upgrade pip
-          # रिसर्च कहती है कि Cython 0.29.33 ही सबसे सुरक्षित है 'Broken Pipe' से बचने के लिए
+          # Cython 0.29.33 ही 'Broken Pipe' का असली इलाज है
           pip install "buildozer>=1.5.0" "cython<3.0.0" kivy kivymd
 
       - name: Build Android APK
         run: |
-          # गहरी रिसर्च: GitHub के पास कई NDK वर्जन हैं। हम 25b का उपयोग करेंगे।
-          # यह कमांड सुनिश्चित करेगी कि पाथ में कोई गड़बड़ न हो
+          # गहरी रिसर्च: GitHub पर मौजूद सबसे स्टेबल NDK पाथ को सेट करना
           export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.2.9519653
           export APP_ANDROID_ACCEPT_SDK_LICENSE=1
           
           # बिल्ड को क्लीन तरीके से चलाना
           buildozer --allow-root android debug
         env:
-          # रैम बढ़ाना (4GB) और Gradle Daemon बंद करना अनिवार्य है
+          # RAM को बढ़ाना और Daemon ऑफ करना ताकि Memory Error न आए
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs='-Xmx4096m'"
 
       - name: Upload APK
