@@ -10,12 +10,11 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip build-essential git python3 python3-dev \
-            ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \
+          sudo apt-get install -y build-essential git python3 python3-dev \
+            libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \
             libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev \
-            libgstreamer1.0-gstreamer-lite-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
-            zip unzip org-mode autoconf automake libtool pkg-config libncurses5-dev \
-            libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev ant
+            zip unzip autoconf automake libtool pkg-config libncurses5-dev \
+            libncursesw5-dev cmake libffi-dev libssl-dev
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -29,10 +28,8 @@ jobs:
 
       - name: Build Android APK
         run: |
-          # 'yes' कमांड अपने आप सारे सवालों का जवाब दे देगी
-          yes | buildozer android debug
-        env:
-          APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
+          # 'yes' कमांड अपने आप सारे लाइसेंस स्वीकार कर लेगी
+          sh -c "yes | buildozer --allow-root android debug"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
