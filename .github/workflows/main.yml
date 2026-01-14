@@ -14,7 +14,7 @@ jobs:
             libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \
             libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev \
             zip unzip autoconf automake libtool pkg-config libncurses5-dev \
-            libncursesw5-dev cmake libffi-dev libssl-dev
+            libncursesw5-dev cmake libffi-dev libssl-dev ant
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -24,12 +24,15 @@ jobs:
       - name: Install Buildozer & Cython
         run: |
           pip install --upgrade pip
-          pip install buildozer cython==0.29.33 kivy
+          pip install "buildozer==1.5.0" "cython<3.0.0" kivy
 
       - name: Build Android APK
         run: |
-          # 'yes' कमांड अपने आप सारे लाइसेंस स्वीकार कर लेगी
-          sh -c "yes | buildozer --allow-root android debug"
+          # 'yes' कमांड के साथ बिल्ड को और अधिक समय दें ताकि 'Broken Pipe' न आए
+          export APP_ANDROID_ACCEPT_SDK_LICENSE=1
+          yes | buildozer --allow-root android debug
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
