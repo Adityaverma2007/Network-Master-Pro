@@ -3,7 +3,7 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04  # रिसर्च: 24.04 की जगह 22.04 का उपयोग करें, यह ज़्यादा स्टेबल है
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
@@ -19,27 +19,27 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10' # 3.11 की जगह 3.10 ज़्यादा स्टेबल है Android बिल्ड के लिए
+          python-version: '3.10'
 
-      - name: Install Buildozer & Cython
+      - name: Install Buildozer & Dependencies
         run: |
           pip install --upgrade pip
           pip install "buildozer==1.5.0" "cython<3.0.0" kivy kivymd
 
       - name: Build Android APK
         run: |
-          # सटीक NDK पाथ फिक्स (Ubuntu 22.04 के लिए)
-          export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.2.9519653
+          # रिसर्च के अनुसार: GitHub पर NDK का सही पाथ चेक करना
+          # अगर यह पाथ गलत है, तो बिल्ड 1 मिनट में क्रैश होता है
+          export ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
           export APP_ANDROID_ACCEPT_SDK_LICENSE=1
           
-          # बिल्ड शुरू करने से पहले पुराना कचरा साफ करें
+          # पुरानी टूटी हुई फाइलों को पूरी तरह साफ करना
           buildozer android clean
           
-          # बिना 'yes' पाइप के सीधा कमांड (ताकि Pipe न टूटे)
+          # बिल्ड रन करना
           buildozer --allow-root android debug
         env:
-          # रैम को 4GB से बढ़ाकर 6GB करें (GitHub 7GB तक देता है)
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs='-Xmx6144m'"
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs='-Xmx4096m'"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
