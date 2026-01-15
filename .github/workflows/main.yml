@@ -13,17 +13,18 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Dependencies
+      - name: Install System Dependencies
         run: |
           sudo apt update
           sudo apt install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev openjdk-17-jdk
           pip install --upgrade pip
           pip install --upgrade Cython==0.29.33 buildozer
 
-      - name: Accept Android Licenses
-        # यह स्टेप "Broken pipe" एरर को जड़ से खत्म कर देगा
+      - name: Install Aidl & Accept Licenses
+        # यह स्टेप 'Aidl not found' एरर को खत्म करेगा [cite: 2026-01-14]
         run: |
           yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0"
 
       - name: Build with Buildozer
         run: buildozer android debug
