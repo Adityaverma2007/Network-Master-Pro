@@ -3,7 +3,7 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04 # हमने इसे ज़्यादा स्टेबल 22.04 पर सेट किया है
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -11,17 +11,18 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.10' # 3.11 की जगह 3.10 ज़्यादा स्टेबल है
 
       - name: Install Dependencies
         run: |
           sudo apt update
-          # libtinfo5 की जगह libtinfo6 और अन्य जरूरी पैकेज
-          sudo apt install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev
+          sudo apt install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+          pip install --upgrade pip
           pip install --upgrade Cython==0.29.33 buildozer
 
       - name: Build with Buildozer
-        run: yes | buildozer android debug
+        # 'yes |' को हटाकर सीधे --warn_on_root के साथ चलाएंगे
+        run: buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
