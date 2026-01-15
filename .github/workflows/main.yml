@@ -20,17 +20,14 @@ jobs:
           pip install --upgrade pip
           pip install --upgrade Cython==0.29.33 buildozer
 
-      - name: Install Aidl & Accept Licenses
-        # यह स्टेप 'Aidl not found' एरर को खत्म करेगा [cite: 2026-01-14]
-        run: |
-          yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0"
-
       - name: Build with Buildozer
-        run: buildozer android debug
+        # Isse exit code 127 nahi aayega kyunki hum sidha buildozer ko call kar rahe hain [cite: 2026-01-14]
+        run: |
+          yes | buildozer android debug || true
+          buildozer android debug
           
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: NetworkMasterPro-APK
+          name: PingMaster-APK
           path: bin/*.apk
