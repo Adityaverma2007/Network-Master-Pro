@@ -21,7 +21,7 @@ jobs:
           pip install --upgrade Cython==0.29.33 buildozer
 
       - name: Build with Buildozer
-        # 'yes' कमांड सभी Android SDK लाइसेंस को खुद ही स्वीकार कर लेगी
+        # 'yes' कमांड के साथ लाइसेंस स्वीकार करना सुनिश्चित करता है
         run: |
           yes | buildozer android debug
           
