@@ -6,19 +6,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4 # v3 -> v4 पर अपडेट किया गया
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
       - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+          # libtinfo5 की जगह libtinfo6 और अन्य जरूरी पैकेज
+          sudo apt install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev
           pip install --upgrade Cython==0.29.33 buildozer
 
       - name: Build with Buildozer
         run: yes | buildozer android debug
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4 # v3 -> v4 पर अपडेट किया गया (Error Fix यहाँ है)
+        uses: actions/upload-artifact@v4
         with:
           name: NetworkMasterPro-APK
           path: bin/*.apk
