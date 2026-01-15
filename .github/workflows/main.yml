@@ -21,8 +21,10 @@ jobs:
           pip install --upgrade Cython==0.29.33 buildozer
 
       - name: Build with Buildozer
-        # 'yes' कमांड के साथ लाइसेंस स्वीकार करना सुनिश्चित करता है
+        # 'yes' कमांड को अलग तरह से चला रहे हैं ताकि पाइप न टूटे
         run: |
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
           yes | buildozer android debug
           
       - name: Upload APK
