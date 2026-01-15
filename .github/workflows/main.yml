@@ -1,34 +1,6 @@
-name: Build Android APK
-on: [push]
-
-jobs:
-  build:
-    runs-on: ubuntu-22.04 # सबसे स्टेबल ऑपरेटिंग सिस्टम [cite: 2026-01-14]
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10' # Kivy/Buildozer के लिए बेस्ट [cite: 2026-01-14]
-
-      - name: Install System Dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev openjdk-17-jdk
-          pip install --upgrade pip
-          pip install --upgrade Cython==0.29.33 buildozer # प्रोफेशनल इको-फ्रेंडली टूल्स [cite: 2026-01-06]
-
       - name: Build with Buildozer
         run: |
-          # 'Broken pipe' से बचने के लिए लाइसेंस को पहले ही 'yes' से पास करेंगे
+          # Sab kuch saaf karke naya build [cite: 2026-01-14]
+          buildozer --verbose android clean
           yes | buildozer android debug || true
-          # असली बिल्ड प्रोसेस यहाँ शुरू होगी
           buildozer android debug
-          
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: PingMaster-APK
-          path: bin/*.apk # जनरेट की गई APK फाइल [cite: 2026-01-14]
