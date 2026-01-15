@@ -3,7 +3,7 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04 # स्टेबल वर्जन [cite: 2026-01-14]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -11,7 +11,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.10' # सबसे स्टेबल वर्जन [cite: 2026-01-14]
 
       - name: Install Dependencies
         run: |
@@ -21,15 +21,13 @@ jobs:
           pip install --upgrade Cython==0.29.33 buildozer
 
       - name: Build with Buildozer
-        # 'yes' कमांड को अलग तरह से चला रहे हैं ताकि पाइप न टूटे
         run: |
-          mkdir -p ~/.android
-          touch ~/.android/repositories.cfg
-          yes | buildozer android debug
+          # लाइसेंस वाली 'Broken pipe' एरर को रोकने के लिए [cite: 2026-01-14]
+          yes | buildozer android debug || true
+          buildozer android debug
           
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: NetworkMasterPro-APK
           path: bin/*.apk
-          
