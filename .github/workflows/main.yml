@@ -3,7 +3,7 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04 # स्टेबल वर्जन [cite: 2026-01-14]
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -11,7 +11,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10' # सबसे स्टेबल वर्जन [cite: 2026-01-14]
+          python-version: '3.10'
 
       - name: Install Dependencies
         run: |
@@ -20,11 +20,13 @@ jobs:
           pip install --upgrade pip
           pip install --upgrade Cython==0.29.33 buildozer
 
-      - name: Build with Buildozer
+      - name: Accept Android Licenses
+        # यह स्टेप "Broken pipe" एरर को जड़ से खत्म कर देगा
         run: |
-          # लाइसेंस वाली 'Broken pipe' एरर को रोकने के लिए [cite: 2026-01-14]
-          yes | buildozer android debug || true
-          buildozer android debug
+          yes | sdkmanager --licenses || true
+
+      - name: Build with Buildozer
+        run: buildozer android debug
           
       - name: Upload APK
         uses: actions/upload-artifact@v4
