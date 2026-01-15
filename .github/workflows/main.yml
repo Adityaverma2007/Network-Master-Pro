@@ -30,3 +30,4 @@ jobs:
         with:
           name: NetworkMasterPro-APK
           path: bin/*.apk
+          
