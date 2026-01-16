@@ -1,11 +1,10 @@
 [app]
 title = NetworkMasterPro
 package.name = netmasterpro
-package.domain = org.aditya.net
+package.domain = org.aditya
 source.dir = .
 version = 1.0
 requirements = python3,kivy==2.3.0
-orientation = portrait
 android.permissions = INTERNET
 android.api = 30
 android.minapi = 21
