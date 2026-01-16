@@ -1,12 +1,16 @@
 [app]
-title = Ping Test
-package.name = pingtest
-package.domain = org.test
+title = NetworkMasterPro
+package.name = networkmasterpro
+package.domain = org.aditya.net
 source.dir = .
-version = 0.1
-requirements = python3,kivy
+version = 1.1
+
+# Original requirements only [cite: 2025-12-14]
+requirements = python3,kivy==2.3.0
+
 android.permissions = INTERNET
-android.api = 31
+# API 30 is more stable for ping subprocess [cite: 2026-01-14]
+android.api = 30
 android.minapi = 21
 android.ndk = 25b
 android.accept_sdk_license = True
