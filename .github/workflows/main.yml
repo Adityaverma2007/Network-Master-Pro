@@ -1,24 +1,37 @@
-name: Build Fresh APK
-on: [push]
+import subprocess
+from kivy.app import App
+from kivy.uix.label import Label
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.scrollview import ScrollView
 
-jobs:
-  build:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-      - name: Install Dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev cmake libffi-dev libssl-dev openjdk-17-jdk
-          pip install --upgrade pip buildozer Cython==0.29.33
-      - name: Build Android APK
-        run: |
-          # Fresh build starting now
-          yes | buildozer android debug
-      - uses: actions/upload-artifact@v4
-        with:
-          name: NetworkMasterPro-v1
-          path: bin/*.apk
+class NetworkMasterPro(App):
+    def build(self):
+        layout = BoxLayout(orientation='vertical', padding=10)
+        self.report = Label(text="[📡] Starting Multi-IP Ping Analysis...\n", 
+                           size_hint_y=None, halign='left', valign='top', markup=True)
+        self.report.bind(texture_size=self.report.setter('size'))
+        
+        scroll = ScrollView()
+        scroll.add_widget(self.report)
+        layout.add_widget(scroll)
+        
+        self.run_ping_test()
+        return layout
+
+    def run_ping_test(self):
+        # 3 detailed pings for each IP [cite: 2025-12-14]
+        target_ips = ["8.8.8.8", "1.1.1.1"]
+        summary = "\n[📊] FINAL STATUS SUMMARY\n" + "="*35 + "\n"
+        
+        for ip in target_ips:
+            try:
+                subprocess.check_output(['ping', '-c', '3', ip])
+                status = "[color=00FF00]OK[/color]"
+            except:
+                status = "[color=FF0000]NOT OK[/color]"
+            summary += f"IP: {ip} | Status: {status}\n"
+        
+        self.report.text += summary + "="*35
+
+if __name__ == '__main__':
+    NetworkMasterPro().run()
