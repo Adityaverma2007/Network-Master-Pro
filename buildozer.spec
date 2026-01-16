@@ -4,10 +4,7 @@ package.name = netmasterpro
 package.domain = org.aditya.net
 source.dir = .
 version = 1.0
-
-# Essential requirements [cite: 2026-01-14]
 requirements = python3,kivy==2.3.0
-
 orientation = portrait
 android.permissions = INTERNET
 android.api = 30
