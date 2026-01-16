@@ -15,22 +15,21 @@ class NetworkMasterPro(App):
         scroll.add_widget(self.report)
         layout.add_widget(scroll)
         
-        # 3 Detailed Pings Logic [cite: 2025-12-14]
         self.run_ping_test()
         return layout
 
     def run_ping_test(self):
-        ips = ["8.8.8.8", "1.1.1.1"] 
+        # 3 detailed pings for each IP [cite: 2025-12-14]
+        target_ips = ["8.8.8.8", "1.1.1.1"]
         summary = "\n[📊] FINAL STATUS SUMMARY\n" + "="*35 + "\n"
         
-        for ip in ips:
+        for ip in target_ips:
             try:
-                # Performing 3 detailed pings [cite: 2025-12-14]
                 subprocess.check_output(['ping', '-c', '3', ip])
-                res = "[color=00FF00]OK[/color]"
+                status = "[color=00FF00]OK[/color]"
             except:
-                res = "[color=FF0000]NOT OK[/color]"
-            summary += f"IP: {ip} | Status: {res}\n"
+                status = "[color=FF0000]NOT OK[/color]"
+            summary += f"IP: {ip} | Status: {status}\n"
         
         self.report.text += summary + "="*35
 
