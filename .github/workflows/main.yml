@@ -1,15 +1,24 @@
-[app]
-title = NetworkMasterPro
-package.name = netmasterpro
-package.domain = org.aditya.net
-source.dir = .
-version = 1.0
-requirements = python3,kivy==2.3.0
-orientation = portrait
-android.permissions = INTERNET
-android.api = 30
-android.minapi = 21
-android.ndk = 25b
-android.accept_sdk_license = True
-android.archs = arm64-v8a
-log_level = 2
+name: Build Network Master Pro
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev cmake libffi-dev libssl-dev openjdk-17-jdk
+          pip install --upgrade pip buildozer Cython==0.29.33
+      - name: Build Android APK
+        run: |
+          # Broken pipe se bachne ke liye clean start
+          yes | buildozer android debug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NetworkMasterPro-APK
+          path: bin/*.apk
