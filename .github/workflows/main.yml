@@ -1,4 +1,4 @@
-name: NetworkMaster-Final-Success
+name: Final-Win-Build
 on: [push]
 jobs:
   build:
@@ -8,7 +8,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - name: Install System Tools
+      - name: Install Tools
         run: |
           sudo apt update
           sudo apt install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev cmake libffi-dev libssl-dev openjdk-17-jdk
@@ -17,11 +17,11 @@ jobs:
         env:
           BUILDOZER_WARN_ON_ROOT: 1
         run: |
-          # Pehle purana cache saaf karein
+          # Sabse pehle saaf start karein
           buildozer android clean
           # Ab build shuru karein
           yes | buildozer -v android debug
       - uses: actions/upload-artifact@v4
         with:
-          name: NetworkMaster-APK
+          name: NetworkMaster-Final-APK
           path: bin/*.apk
