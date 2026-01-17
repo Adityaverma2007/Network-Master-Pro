@@ -15,14 +15,13 @@ jobs:
           pip install --upgrade pip buildozer Cython==0.29.33
       - name: Build Android APK
         env:
-          # Broken pipe se bachne ke liye environment variable
           BUILDOZER_WARN_ON_ROOT: 1
         run: |
           # Pehle purana cache saaf karein
           buildozer android clean
-          # Ab bina kisi interruption ke build karein
-          buildozer -v android debug
+          # Ab build shuru karein
+          yes | buildozer -v android debug
       - uses: actions/upload-artifact@v4
         with:
-          name: NetworkMaster-APK-Final
+          name: NetworkMaster-APK
           path: bin/*.apk
